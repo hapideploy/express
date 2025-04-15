@@ -1,3 +1,5 @@
+.hapi/inventory.yml
+
 node_modules/
 
 .env
