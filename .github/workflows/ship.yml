@@ -29,14 +29,14 @@ jobs:
           echo "${{ secrets.HAPI_SSH_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
 
-      - name: Create ~/.ssh/config
-        run: |
-          rm -f ~/.ssh/config && touch ~/.ssh/config
-          echo "Host app-server" >> ~/.ssh/config
-          echo "  Hostname ${{ secrets.HAPI_HOST_IP }}" >> ~/.ssh/config
-          echo "  User ${{ secrets.HAPI_SSH_USER }}" >> ~/.ssh/config
-          cat ~/.ssh/config
-          ssh app-server whoami
+#      - name: Create ~/.ssh/config
+#        run: |
+#          rm -f ~/.ssh/config && touch ~/.ssh/config
+#          echo "Host app-server" >> ~/.ssh/config
+#          echo "  Hostname ${{ secrets.HAPI_HOST_IP }}" >> ~/.ssh/config
+#          echo "  User ${{ secrets.HAPI_SSH_USER }}" >> ~/.ssh/config
+#          cat ~/.ssh/config
+#          ssh app-server whoami
 
       - name: Create inventory file
         run: |
@@ -44,6 +44,9 @@ jobs:
           rm -f inventory.yml && touch inventory.yml
           echo "hosts:" >> inventory.yml
           echo "  app-server:" >> inventory.yml
+          echo "    host: ${{ secrets.HAPI_HOST_IP }}" >> inventory.yml
+          echo "    user: ${{ secrets.HAPI_SSH_USER }}" >> inventory.yml
+          echo "    pemfile: ~/.ssh/id_ed25519" >> inventory.yml
           echo "    with:" >> inventory.yml
           echo "      deploy_path: ~/deploy/{{name}}/{{stage}}" >> inventory.yml
           cat inventory.yml
@@ -52,4 +55,4 @@ jobs:
         run: pip install hapideploy==${{ vars.HAPI_VERSION }}
 
       - name: Run the deploy command
-        run: cd .hapi && hapi deploy --stage=staging --config=node_version=${{ vars.NODE_VERSION }} --debug
+        run: cd .hapi && hapi deploy app-server --stage=staging --config=node_version=${{ vars.NODE_VERSION }} --debug
