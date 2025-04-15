@@ -27,7 +27,7 @@ jobs:
           mkdir -p ~/.ssh
           rm -rf ~/.ssh/id_ed25519 && touch ~/.ssh/id_ed25519
           echo "${{ secrets.HAPI_SSH_KEY }}" > ~/.ssh/id_ed25519
-          chmod 600 id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
 
       - name: Create ~/.ssh/config
         run: |
