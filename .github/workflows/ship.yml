@@ -23,18 +23,18 @@ jobs:
           python-version: 3.13
 
       - name: Create ~/.ssh/id_ed25519
-        run:
-          - echo "${{ secrets.HAPI_SSH_KEY }}" > ~/.ssh/id_ed25519
-          - chmod 600 id_ed25519
+        run: |
+          echo "${{ secrets.HAPI_SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 id_ed25519
 
       - name: Create ~/.ssh/config
-        run:
-          - rm -f ~/.ssh/config && touch ~/.ssh/config
-          - echo "Host app-server" >> ~/.ssh/config
-          - echo "  Hostname ${{ secrets.HAPI_HOST_IP }}" >> ~/.ssh/config
-          - echo "  User ${{ secrets.HAPI_SSH_USER }}" >> ~/.ssh/config
-          - cat ~/.ssh/config
-          - ssh app-server whoami
+        run: |
+          rm -f ~/.ssh/config && touch ~/.ssh/config
+          echo "Host app-server" >> ~/.ssh/config
+          echo "  Hostname ${{ secrets.HAPI_HOST_IP }}" >> ~/.ssh/config
+          echo "  User ${{ secrets.HAPI_SSH_USER }}" >> ~/.ssh/config
+          cat ~/.ssh/config
+          ssh app-server whoami
 
       - name: Create inventory file
         run: |
