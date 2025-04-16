@@ -2,7 +2,7 @@ name: Ship
 
 on:
   push:
-#    branches: ['main']
+    branches: ['main']
 
 concurrency: production_environment
 
@@ -22,23 +22,14 @@ jobs:
         with:
           python-version: 3.13
 
-      - name: Create ~/.ssh/id_github
+      - name: Create id_github file
         run: |
           mkdir -p ~/.ssh
           rm -rf ~/.ssh/id_github && touch ~/.ssh/id_github
           echo "${{ secrets.HAPI_SSH_KEY }}" > ~/.ssh/id_github
           chmod 600 ~/.ssh/id_github
 
-#      - name: Create ~/.ssh/config
-#        run: |
-#          rm -f ~/.ssh/config && touch ~/.ssh/config
-#          echo "Host app-server" >> ~/.ssh/config
-#          echo "  Hostname ${{ secrets.HAPI_HOST_IP }}" >> ~/.ssh/config
-#          echo "  User ${{ secrets.HAPI_SSH_USER }}" >> ~/.ssh/config
-#          cat ~/.ssh/config
-#          ssh app-server whoami
-
-      - name: Create inventory file
+      - name: Create inventory.yml file
         run: |
           cd .hapi
           
@@ -58,4 +49,4 @@ jobs:
         run: pip install hapideploy==${{ vars.HAPI_VERSION }}
 
       - name: Run the deploy command
-        run: cd .hapi && hapi deploy app-server --stage=staging --config=node_version=${{ vars.NODE_VERSION }} --debug
+        run: cd .hapi && hapi deploy app-server --stage=staging --config=node_version=${{ vars.NODE_VERSION }} ${{ vars.HAPI_VERBOSE }}
