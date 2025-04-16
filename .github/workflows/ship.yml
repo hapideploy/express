@@ -1,0 +1,52 @@
+name: Ship
+
+on:
+  push:
+    branches: ['main']
+
+concurrency: production_environment
+
+jobs:
+  ship:
+    name: Ship
+
+    runs-on: ubuntu-latest
+
+    environment:
+      name: production
+      url: https://express.hapideploy.com
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: 3.13
+
+      - name: Create id_github file
+        run: |
+          mkdir -p ~/.ssh
+          rm -rf ~/.ssh/id_github && touch ~/.ssh/id_github
+          echo "${{ secrets.HAPI_SSH_KEY }}" > ~/.ssh/id_github
+          chmod 600 ~/.ssh/id_github
+
+      - name: Create inventory.yml file
+        run: |
+          cd .hapi
+          
+          rm -f inventory.yml && touch inventory.yml
+          
+          echo "hosts:" >> inventory.yml
+          echo "  app-server:" >> inventory.yml
+          echo "    host: ${{ secrets.HAPI_HOST_IP }}" >> inventory.yml
+          echo "    user: ${{ secrets.HAPI_SSH_USER }}" >> inventory.yml
+          echo "    pemfile: $HOME/.ssh/id_github" >> inventory.yml
+          echo "    with:" >> inventory.yml
+          echo "      deploy_path: ~/deploy/{{name}}/{{stage}}" >> inventory.yml
+          
+          cat inventory.yml
+
+      - name: Install hapideploy library
+        run: pip install hapideploy==${{ vars.HAPI_VERSION }}
+
+      - name: Run the deploy command
+        run: cd .hapi && hapi deploy app-server --stage=staging --config=node_version=${{ vars.NODE_VERSION }} ${{ vars.HAPI_VERBOSE }}
